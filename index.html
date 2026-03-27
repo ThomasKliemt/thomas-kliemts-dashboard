@@ -166,7 +166,11 @@
       <div class="card tv-card">
         <div class="tv-label-bar">
           <div class="card-label">🥇 Gold / EUR</div>
-          <div class="card-sublabel">OANDA:XAUEUR · Preis je Troy-Unze</div>
+          <div class="card-sublabel">OANDA:XAUEUR · EZB-Referenz</div>
+          <div id="gold-kg-bar" style="margin-top:6px;display:flex;gap:16px;flex-wrap:wrap;">
+            <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);">€/kg <span id="gold-kg" style="color:var(--text);font-weight:600;">…</span></span>
+            <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);">€/oz <span id="gold-oz" style="color:var(--text-muted);">…</span></span>
+          </div>
         </div>
         <div class="tv-widget-wrap">
           <div class="tradingview-widget-container" style="height:100%;width:100%">
@@ -198,14 +202,13 @@
       <div class="card tv-card">
         <div class="tv-label-bar">
           <div class="card-label">🔥 Erdgas TTF / EUR</div>
-          <div class="card-sublabel">ICEEUR:TTF1! · €/MWh</div>
+          <div class="card-sublabel">ICEEUR:TTF1! · Dutch TTF · €/MWh</div>
         </div>
         <div class="tv-widget-wrap">
           <div class="tradingview-widget-container" style="height:100%;width:100%">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-            <div class="tradingview-widget-copyright"><a href="https://de.tradingview.com/" rel="noopener nofollow" target="_blank" style="color:var(--text-faint);font-size:0.6rem;">TradingView</a></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-            {"symbols":[["Erdgas TTF","ICEEUR:TTF1!|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideMarketStatus":true,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
+            <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+            {"symbol":"ICEEUR:TTF1!","width":"100%","height":"100%","locale":"de","dateRange":"12M","colorTheme":"dark","trendLineColor":"#00d4a8","underLineColor":"rgba(0,212,168,0.12)","underLineBottomColor":"rgba(0,0,0,0)","isTransparent":true,"autosize":true,"largeChartUrl":"https://www.tradingview.com/chart/?symbol=ICEEUR:TTF1!"}
             </script>
           </div>
         </div>
@@ -506,32 +509,51 @@ async function loadPegel(days, btn) {
 }
 
 // WASSERTEMPERATUR
+const TEMP_STATIONS = ['HITZACKER', 'WITTENBERGE', 'CUMLOSEN', 'SCHNACKENBURG'];
 async function loadTemp(days, btn) {
   if (btn) activateBtn('temp-btns', btn);
   st.temp = days;
   showState('temp', 'loading', 'Lade Wassertemperatur…');
-  try {
-    const res = await fetch(`https://pegelonline.wsv.de/webservices/rest-api/v2/stations/SCHNACKENBURG/WT/measurements.json?start=P${days}D`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const raw = await res.json();
-    if (!Array.isArray(raw) || !raw.length) throw new Error('Keine Temperaturdaten');
-    const step = Math.max(1, Math.ceil(raw.length / 600));
-    const data = raw.filter((_, i) => i % step === 0);
-    const labels = data.map(d => new Date(d.timestamp));
-    const vals   = data.map(d => d.value);
-    setText('temp-value', fmtC(vals.at(-1)));
-    setText('temp-change', 'Aktuell gemessen');
-    setText('temp-min', fmtC(Math.min(...vals)));
-    setText('temp-max', fmtC(Math.max(...vals)));
-    makeChart('temp', labels, vals, fmtC);
-  } catch (e) {
-    showState('temp', 'error', 'Pegelstation Schnackenburg liefert keinen WT-Parameter. → undine.bafg.de');
-    console.warn('Temp:', e.message);
+  for (const station of TEMP_STATIONS) {
+    try {
+      const res = await fetch(
+        `https://pegelonline.wsv.de/webservices/rest-api/v2/stations/${station}/WT/measurements.json?start=P${days}D`
+      );
+      if (!res.ok) continue;
+      const raw = await res.json();
+      if (!Array.isArray(raw) || !raw.length) continue;
+      const step = Math.max(1, Math.ceil(raw.length / 600));
+      const data = raw.filter((_, i) => i % step === 0);
+      const labels = data.map(d => new Date(d.timestamp));
+      const vals   = data.map(d => d.value);
+      setText('temp-value', fmtC(vals.at(-1)));
+      setText('temp-change', `Station: ${station}`);
+      setText('temp-min', fmtC(Math.min(...vals)));
+      setText('temp-max', fmtC(Math.max(...vals)));
+      makeChart('temp', labels, vals, fmtC);
+      return;
+    } catch { /* try next */ }
   }
+  showState('temp', 'error', 'Kein WT-Parameter an Elbe-Stationen verfügbar → undine.bafg.de');
 }
 
 // ERNEUERBARE
 const RENEW = ['Wind onshore','Wind offshore','Photovoltaics','Hydro Water Reservoir','Run of River','Biomass','Geothermal'];
+
+async function fetchEnergy(url) {
+  // Try direct fetch first, then CORS proxy (needed for local file:// access)
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch {
+    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const res2 = await fetch(proxy);
+    if (!res2.ok) throw new Error(`Proxy HTTP ${res2.status}`);
+    return await res2.json();
+  }
+}
+
 async function loadRen(months, btn) {
   if (btn) activateBtn('ren-btns', btn);
   st.ren = months;
@@ -539,10 +561,10 @@ async function loadRen(months, btn) {
   try {
     const end = new Date(), start = new Date();
     start.setMonth(start.getMonth() - months);
-    const fmt = d => d.toISOString().slice(0,10) + 'T00:00';
-    const res = await fetch(`https://api.energy-charts.info/public_power?country=de&start=${fmt(start)}&end=${fmt(end)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    // Use date-only format (more compatible with the API)
+    const fmt = d => d.toISOString().slice(0, 10);
+    const url = `https://api.energy-charts.info/public_power?country=de&start=${fmt(start)}&end=${fmt(end)}`;
+    const data = await fetchEnergy(url);
     if (!data.unix_seconds || !data.production_types) throw new Error('Unerwartetes API-Format');
     const n = data.unix_seconds.length;
     const totalA = new Float64Array(n), renewA = new Float64Array(n);
@@ -623,6 +645,29 @@ function renderBauz(labels, vals) {
   makeChart('bauz', labels, vals, fmtZins);
 }
 
+// GOLD €/KG (ECB Referenzkurs)
+async function loadGoldKg() {
+  try {
+    // ECB publishes XAU/EUR as "XAU per 1 EUR" → need to invert
+    const res = await fetch(
+      'https://data-api.ecb.europa.eu/service/data/EXR/D.XAU.EUR.SP00.A?format=jsondata&detail=dataonly&lastNObservations=1'
+    );
+    if (!res.ok) throw new Error();
+    const json = await res.json();
+    const obs = json.dataSets[0].series[Object.keys(json.dataSets[0].series)[0]].observations;
+    const raw = Object.values(obs)[0][0]; // XAU per 1 EUR
+    if (!raw) throw new Error();
+    const pricePerOz = raw < 1 ? 1 / raw : raw; // invert if XAU/EUR, keep if EUR/XAU
+    const pricePerKg = pricePerOz * 32.1507;
+    const fmtEur = v => v.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+    document.getElementById('gold-kg').textContent = fmtEur(pricePerKg);
+    document.getElementById('gold-oz').textContent = fmtEur(pricePerOz);
+  } catch {
+    const el = document.getElementById('gold-kg');
+    if (el) el.textContent = '–';
+  }
+}
+
 // NAV
 const SECTIONS = ['rohstoffe','krypto','devisen','zinsen','energie','elbe'];
 function goTo(id) { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' }); }
@@ -637,7 +682,7 @@ window.addEventListener('scroll', updateNav, { passive: true });
 async function refreshAll() {
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('spinning');
-  await Promise.allSettled([loadPegel(st.pegel), loadTemp(st.temp), loadRen(st.ren), loadBauz(st.bauz)]);
+  await Promise.allSettled([loadGoldKg(), loadPegel(st.pegel), loadTemp(st.temp), loadRen(st.ren), loadBauz(st.bauz)]);
   btn.classList.remove('spinning');
   updateTimestamp();
 }
@@ -646,7 +691,7 @@ function updateTimestamp() {
   if (el) el.textContent = new Date().toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) + ' Uhr';
 }
 setInterval(refreshAll, 5 * 60 * 1000);
-document.addEventListener('DOMContentLoaded', () => { updateTimestamp(); loadPegel(7); loadTemp(30); loadRen(6); loadBauz(60); });
+document.addEventListener('DOMContentLoaded', () => { updateTimestamp(); loadGoldKg(); loadPegel(7); loadTemp(30); loadRen(6); loadBauz(60); });
 </script>
 </body>
 </html>
