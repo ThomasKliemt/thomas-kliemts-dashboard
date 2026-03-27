@@ -5,193 +5,191 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta name="theme-color" content="#080d17">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <title>Dashboard</title>
+  <title>Dashboard · Thomas Kliemt</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:        #080d17;
-      --surface:   #0f1623;
-      --surface-2: #161e2e;
-      --border:    #1e2a3a;
-      --border-2:  #263344;
-      --accent:    #00d4a8;
-      --accent-dim: rgba(0,212,168,0.12);
-      --text:      #d4e0ed;
-      --text-muted:#6b7f99;
-      --text-faint:#3a4a5e;
-      --positive:  #00d4a8;
-      --negative:  #ff5a7a;
-      --r: 10px;
-      --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
-      --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+      --bg: #080d17; --surface: #0f1623; --surface2: #161e2e;
+      --border: #1e2a3a; --border2: #263344;
+      --accent: #00d4a8; --accent-dim: rgba(0,212,168,.12);
+      --text: #d4e0ed; --muted: #6b7f99; --faint: #3a4a5e;
+      --pos: #00d4a8; --neg: #ff5a7a;
+      --mono: 'IBM Plex Mono','Courier New',monospace;
+      --sans: 'IBM Plex Sans',system-ui,sans-serif;
     }
-    html { font-size: 14px; scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: var(--font-sans); line-height: 1.5; min-height: 100vh; padding-bottom: 48px; }
+    html { font-size:14px; scroll-behavior:smooth; }
+    body { background:var(--bg); color:var(--text); font-family:var(--sans); padding-bottom:60px; }
 
-    /* HEADER */
-    .app-header {
-      position: sticky; top: 0; z-index: 200;
-      background: rgba(8,13,23,0.97); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    /* header */
+    .hdr {
+      position:sticky; top:0; z-index:200;
+      background:rgba(8,13,23,.97); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
     }
-    .app-title { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
-    .header-right { display: flex; align-items: center; gap: 10px; }
-    .last-update { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-faint); }
-    .refresh-btn {
-      background: var(--surface-2); border: 1px solid var(--border-2); color: var(--text-muted);
-      width: 30px; height: 30px; border-radius: 6px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s;
+    .hdr-title { font-family:var(--mono); font-size:.95rem; font-weight:600; color:var(--accent); }
+    .hdr-right { display:flex; align-items:center; gap:10px; }
+    .ts { font-family:var(--mono); font-size:.68rem; color:var(--faint); }
+    .rbtn {
+      background:var(--surface2); border:1px solid var(--border2); color:var(--muted);
+      width:30px; height:30px; border-radius:6px; cursor:pointer; font-size:1rem;
+      display:flex; align-items:center; justify-content:center; transition:all .2s;
     }
-    .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .refresh-btn.spinning { animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .rbtn:hover { border-color:var(--accent); color:var(--accent); }
+    .rbtn.spin { animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
 
-    /* NAV */
-    .section-nav {
-      display: flex; gap: 2px; padding: 8px 12px; overflow-x: auto; scrollbar-width: none;
-      border-bottom: 1px solid var(--border);
-      position: sticky; top: 50px; z-index: 100;
-      background: rgba(8,13,23,0.97); backdrop-filter: blur(12px);
+    /* nav */
+    .nav {
+      display:flex; gap:2px; padding:8px 12px; overflow-x:auto; scrollbar-width:none;
+      border-bottom:1px solid var(--border);
+      position:sticky; top:51px; z-index:100;
+      background:rgba(8,13,23,.97); backdrop-filter:blur(12px);
     }
-    .section-nav::-webkit-scrollbar { display: none; }
-    .nav-btn {
-      background: transparent; border: none; color: var(--text-muted);
-      padding: 5px 11px; border-radius: 20px; font-size: 0.75rem;
-      font-family: var(--font-sans); cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    .nav::-webkit-scrollbar { display:none; }
+    .nbtn {
+      background:transparent; border:none; color:var(--muted); padding:5px 11px;
+      border-radius:20px; font-size:.75rem; font-family:var(--sans);
+      cursor:pointer; white-space:nowrap; transition:all .2s;
     }
-    .nav-btn:hover { background: var(--surface-2); color: var(--text); }
-    .nav-btn.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+    .nbtn:hover { background:var(--surface2); color:var(--text); }
+    .nbtn.on { background:var(--accent-dim); color:var(--accent); font-weight:600; }
 
-    /* LAYOUT */
-    .main-content { max-width: 1440px; margin: 0 auto; padding: 0 12px; }
-    .dashboard-section { padding: 22px 0 6px; }
-    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .section-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint); font-family: var(--font-mono); white-space: nowrap; }
-    .section-line { flex: 1; height: 1px; background: var(--border); }
-    .grid { display: grid; gap: 10px; }
-    .g1 { grid-template-columns: 1fr; }
-    .g2 { grid-template-columns: 1fr; }
-    .g3 { grid-template-columns: 1fr; }
-    @media (min-width: 600px) { .g2 { grid-template-columns: repeat(2, 1fr); } .g3 { grid-template-columns: repeat(2, 1fr); } }
-    @media (min-width: 960px) { .g3 { grid-template-columns: repeat(3, 1fr); } }
+    /* layout */
+    .wrap { max-width:1440px; margin:0 auto; padding:0 12px; }
+    .sec { padding:22px 0 8px; }
+    .sec-hdr { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .sec-title { font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--faint); font-family:var(--mono); white-space:nowrap; }
+    .line { flex:1; height:1px; background:var(--border); }
+    .grid { display:grid; gap:10px; }
+    .g1 { grid-template-columns:1fr; }
+    .g2 { grid-template-columns:1fr; }
+    .g3 { grid-template-columns:1fr; }
+    @media(min-width:600px){ .g2{grid-template-columns:repeat(2,1fr);} .g3{grid-template-columns:repeat(2,1fr);} }
+    @media(min-width:960px){ .g3{grid-template-columns:repeat(3,1fr);} }
 
-    /* CARDS */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; transition: border-color 0.2s; }
-    .card:hover { border-color: var(--border-2); }
+    /* cards */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
 
-    /* TV Card */
-    .tv-card { display: flex; flex-direction: column; min-height: 420px; }
-    .tv-card.tall { min-height: 480px; }
-    .tv-label-bar { padding: 10px 14px 8px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .tv-widget-wrap { flex: 1; min-height: 0; position: relative; }
-    .tv-widget-wrap .tradingview-widget-container,
-    .tv-widget-wrap .tradingview-widget-container__widget { height: 100%; width: 100%; }
+    /* tv card */
+    .tvc { display:flex; flex-direction:column; min-height:400px; }
+    .tvc.tall { min-height:460px; }
+    .tvc-top { padding:10px 14px 8px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .tvc-body { flex:1; min-height:0; }
+    .tvc-body .tradingview-widget-container,
+    .tvc-body .tradingview-widget-container__widget { height:100%; width:100%; }
+    .tv-foot { font-size:.6rem; padding:4px 8px; }
+    .tv-foot a { color:var(--faint); text-decoration:none; }
 
-    /* Custom chart card */
-    .cc-card .card-top { padding: 14px 14px 0; }
-    .cc-card .card-body { padding: 0 14px 14px; }
-    .card-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
-    .card-sublabel { font-size: 0.65rem; color: var(--text-faint); margin-top: 2px; }
+    /* gold pill */
+    .gold-prices { display:flex; gap:14px; margin-top:6px; }
+    .gold-prices span { font-family:var(--mono); font-size:.72rem; color:var(--muted); }
+    .gold-prices b { color:var(--text); font-weight:600; }
+    .gold-prices em { color:var(--faint); font-style:normal; }
 
-    /* METRICS */
-    .metric-row { display: flex; align-items: baseline; gap: 10px; margin: 10px 0 4px; }
-    .metric-value { font-family: var(--font-mono); font-size: 1.7rem; font-weight: 600; color: var(--text); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-    .metric-change { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; }
-    .pos { color: var(--positive); }
-    .neg { color: var(--negative); }
-    .stats-row { display: flex; gap: 16px; margin: 6px 0 10px; }
-    .stat-item { flex: 1; }
-    .stat-lbl { font-size: 0.62rem; color: var(--text-faint); margin-bottom: 2px; }
-    .stat-val { font-family: var(--font-mono); font-size: 0.82rem; font-weight: 500; }
+    /* data card */
+    .dc .dc-top { padding:14px 14px 0; }
+    .dc .dc-body { padding:4px 14px 14px; }
+    .lbl { font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+    .sub { font-size:.65rem; color:var(--faint); margin-top:2px; }
 
-    /* TIME BUTTONS */
-    .time-btns { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
-    .time-btn {
-      background: transparent; border: 1px solid var(--border-2); color: var(--text-faint);
-      padding: 3px 8px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.65rem;
-      cursor: pointer; transition: all 0.15s;
+    .mrow { display:flex; align-items:baseline; gap:10px; margin:10px 0 4px; }
+    .mval { font-family:var(--mono); font-size:1.7rem; font-weight:600; color:var(--text); letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+    .mchg { font-family:var(--mono); font-size:.75rem; font-weight:500; }
+    .pos { color:var(--pos); } .neg { color:var(--neg); }
+
+    .srow { display:flex; gap:16px; margin:6px 0 10px; }
+    .si .sl { font-size:.62rem; color:var(--faint); margin-bottom:2px; }
+    .si .sv { font-family:var(--mono); font-size:.82rem; font-weight:500; }
+
+    .tbtns { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
+    .tbtn {
+      background:transparent; border:1px solid var(--border2); color:var(--faint);
+      padding:3px 8px; border-radius:4px; font-family:var(--mono); font-size:.65rem;
+      cursor:pointer; transition:all .15s;
     }
-    .time-btn:hover:not(.active) { border-color: var(--accent); color: var(--text-muted); }
-    .time-btn.active { background: var(--accent); border-color: var(--accent); color: #020a12; font-weight: 600; }
+    .tbtn:hover:not(.on) { border-color:var(--accent); color:var(--muted); }
+    .tbtn.on { background:var(--accent); border-color:var(--accent); color:#020a12; font-weight:600; }
 
-    /* CHART */
-    .chart-wrap { position: relative; }
-    .chart-wrap canvas { display: none; }
-    .chart-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-faint); font-size: 0.78rem; text-align: center; padding: 20px; }
-    .spinner { width: 18px; height: 18px; flex-shrink: 0; border: 2px solid var(--border-2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
-    .chart-state.error { color: var(--negative); }
-    .chart-state.error .spinner { display: none; }
-    .chart-note { font-size: 0.62rem; color: var(--text-faint); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px; }
-    .chart-note a { color: var(--text-faint); text-decoration: none; }
-    .chart-note a:hover { color: var(--accent); }
-    .ext-link { color: var(--accent); text-decoration: none; }
+    /* chart area */
+    .cw { position:relative; }
+    .cw canvas { display:none; }
+    .cst {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:8px; color:var(--faint); font-size:.78rem; text-align:center; padding:20px; min-height:120px;
+    }
+    .spin2 { width:18px; height:18px; border:2px solid var(--border2); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+    .cst.err { color:var(--neg); }
+    .cst.err .spin2 { display:none; }
+    .cnote { font-size:.62rem; color:var(--faint); margin-top:8px; border-top:1px solid var(--border); padding-top:6px; }
+    .cnote a { color:var(--faint); text-decoration:none; }
+    .cnote a:hover { color:var(--accent); }
+    a.ext { color:var(--accent); text-decoration:none; }
 
-    /* SCROLLBAR */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg); }
+    ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
   </style>
 </head>
 <body>
 
-<header class="app-header">
-  <div class="app-title">▸ DASHBOARD</div>
-  <div class="header-right">
-    <span class="last-update" id="last-update">–</span>
-    <button class="refresh-btn" id="refresh-btn" onclick="refreshAll()" title="Aktualisieren">↻</button>
+<header class="hdr">
+  <div class="hdr-title">▸ DASHBOARD</div>
+  <div class="hdr-right">
+    <span class="ts" id="ts">–</span>
+    <button class="rbtn" id="rbtn" onclick="refreshAll()" title="Aktualisieren">↻</button>
   </div>
 </header>
 
-<nav class="section-nav">
-  <button class="nav-btn active" onclick="goTo('rohstoffe')">🛢 Rohstoffe</button>
-  <button class="nav-btn" onclick="goTo('krypto')">₿ Bitcoin</button>
-  <button class="nav-btn" onclick="goTo('devisen')">💱 CHF/EUR</button>
-  <button class="nav-btn" onclick="goTo('zinsen')">🏠 Bauzinsen</button>
-  <button class="nav-btn" onclick="goTo('energie')">⚡ Energie</button>
-  <button class="nav-btn" onclick="goTo('elbe')">🌊 Elbe</button>
+<nav class="nav">
+  <button class="nbtn on" onclick="goTo('rohstoffe')">🛢 Rohstoffe</button>
+  <button class="nbtn" onclick="goTo('krypto')">₿ Bitcoin</button>
+  <button class="nbtn" onclick="goTo('devisen')">💱 CHF/EUR</button>
+  <button class="nbtn" onclick="goTo('zinsen')">🏠 Bauzinsen</button>
+  <button class="nbtn" onclick="goTo('energie')">⚡ Energie</button>
+  <button class="nbtn" onclick="goTo('elbe')">🌊 Elbe</button>
 </nav>
 
-<div class="main-content">
+<div class="wrap">
 
   <!-- ROHSTOFFE -->
-  <section class="dashboard-section" id="rohstoffe">
-    <div class="section-header"><span class="section-title">Rohstoffe</span><div class="section-line"></div></div>
+  <section class="sec" id="rohstoffe">
+    <div class="sec-hdr"><span class="sec-title">Rohstoffe</span><div class="line"></div></div>
     <div class="grid g3">
 
-      <div class="card tv-card">
-        <div class="tv-label-bar">
-          <div class="card-label">🥇 Gold / EUR</div>
-          <div class="card-sublabel">OANDA:XAUEUR · EZB-Referenz</div>
-          <div id="gold-kg-bar" style="margin-top:6px;display:flex;gap:16px;flex-wrap:wrap;">
-            <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);">€/kg <span id="gold-kg" style="color:var(--text);font-weight:600;">…</span></span>
-            <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);">€/oz <span id="gold-oz" style="color:var(--text-muted);">…</span></span>
+      <!-- GOLD: spot rate → Symbol Overview works fine for OANDA:XAUEUR -->
+      <div class="card tvc">
+        <div class="tvc-top">
+          <div class="lbl">🥇 Gold / EUR</div>
+          <div class="sub">OANDA:XAUEUR</div>
+          <div class="gold-prices">
+            <span>€/kg &nbsp;<b id="gkg">…</b></span>
+            <span>€/oz &nbsp;<em id="goz">…</em></span>
           </div>
         </div>
-        <div class="tv-widget-wrap">
+        <div class="tvc-body">
           <div class="tradingview-widget-container" style="height:100%;width:100%">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-            <div class="tradingview-widget-copyright"><a href="https://de.tradingview.com/" rel="noopener nofollow" target="_blank" style="color:var(--text-faint);font-size:0.6rem;">TradingView</a></div>
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 28px);width:100%"></div>
+            <div class="tv-foot"><a href="https://de.tradingview.com/" target="_blank" rel="noopener">TradingView</a></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-            {"symbols":[["Gold EUR","OANDA:XAUEUR|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideMarketStatus":true,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
+            {"symbols":[["Gold","OANDA:XAUEUR|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideMarketStatus":true,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
             </script>
           </div>
         </div>
       </div>
 
-      <div class="card tv-card">
-        <div class="tv-label-bar">
-          <div class="card-label">🛢️ Rohöl WTI / USD</div>
-          <div class="card-sublabel">TVC:USOIL · Dollar je Barrel</div>
+      <!-- OIL -->
+      <div class="card tvc">
+        <div class="tvc-top">
+          <div class="lbl">🛢️ Rohöl WTI / USD</div>
+          <div class="sub">TVC:USOIL · Dollar je Barrel</div>
         </div>
-        <div class="tv-widget-wrap">
+        <div class="tvc-body">
           <div class="tradingview-widget-container" style="height:100%;width:100%">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-            <div class="tradingview-widget-copyright"><a href="https://de.tradingview.com/" rel="noopener nofollow" target="_blank" style="color:var(--text-faint);font-size:0.6rem;">TradingView</a></div>
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 28px);width:100%"></div>
+            <div class="tv-foot"><a href="https://de.tradingview.com/" target="_blank" rel="noopener">TradingView</a></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
             {"symbols":[["WTI Rohöl","TVC:USOIL|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideMarketStatus":true,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
             </script>
@@ -199,16 +197,18 @@
         </div>
       </div>
 
-      <div class="card tv-card">
-        <div class="tv-label-bar">
-          <div class="card-label">🔥 Erdgas TTF / EUR</div>
-          <div class="card-sublabel">ICEEUR:TTF1! · Dutch TTF · €/MWh</div>
+      <!-- TTF GAS: use NYMEX:TTF1! – same contract, supported by Symbol Overview -->
+      <div class="card tvc">
+        <div class="tvc-top">
+          <div class="lbl">🔥 Erdgas TTF / EUR</div>
+          <div class="sub">NYMEX:TTF1! · Dutch TTF · €/MWh</div>
         </div>
-        <div class="tv-widget-wrap">
+        <div class="tvc-body">
           <div class="tradingview-widget-container" style="height:100%;width:100%">
-            <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-            {"symbol":"ICEEUR:TTF1!","width":"100%","height":"100%","locale":"de","dateRange":"12M","colorTheme":"dark","trendLineColor":"#00d4a8","underLineColor":"rgba(0,212,168,0.12)","underLineBottomColor":"rgba(0,0,0,0)","isTransparent":true,"autosize":true,"largeChartUrl":"https://www.tradingview.com/chart/?symbol=ICEEUR:TTF1!"}
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 28px);width:100%"></div>
+            <div class="tv-foot"><a href="https://de.tradingview.com/" target="_blank" rel="noopener">TradingView</a></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+            {"symbols":[["Erdgas TTF","NYMEX:TTF1!|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideMarketStatus":true,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
             </script>
           </div>
         </div>
@@ -218,18 +218,15 @@
   </section>
 
   <!-- BITCOIN -->
-  <section class="dashboard-section" id="krypto">
-    <div class="section-header"><span class="section-title">Krypto</span><div class="section-line"></div></div>
+  <section class="sec" id="krypto">
+    <div class="sec-hdr"><span class="sec-title">Krypto</span><div class="line"></div></div>
     <div class="grid g1">
-      <div class="card tv-card tall">
-        <div class="tv-label-bar">
-          <div class="card-label">₿ Bitcoin / EUR</div>
-          <div class="card-sublabel">COINBASE:BTCEUR</div>
-        </div>
-        <div class="tv-widget-wrap">
+      <div class="card tvc tall">
+        <div class="tvc-top"><div class="lbl">₿ Bitcoin / EUR</div><div class="sub">COINBASE:BTCEUR</div></div>
+        <div class="tvc-body">
           <div class="tradingview-widget-container" style="height:100%;width:100%">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-            <div class="tradingview-widget-copyright"><a href="https://de.tradingview.com/" rel="noopener nofollow" target="_blank" style="color:var(--text-faint);font-size:0.6rem;">TradingView</a></div>
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 28px);width:100%"></div>
+            <div class="tv-foot"><a href="https://de.tradingview.com/" target="_blank" rel="noopener">TradingView</a></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
             {"symbols":[["Bitcoin EUR","COINBASE:BTCEUR|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":true,"hideDateRanges":false,"hideMarketStatus":false,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
             </script>
@@ -240,18 +237,15 @@
   </section>
 
   <!-- CHF/EUR -->
-  <section class="dashboard-section" id="devisen">
-    <div class="section-header"><span class="section-title">Devisen</span><div class="section-line"></div></div>
+  <section class="sec" id="devisen">
+    <div class="sec-hdr"><span class="sec-title">Devisen</span><div class="line"></div></div>
     <div class="grid g1">
-      <div class="card tv-card">
-        <div class="tv-label-bar">
-          <div class="card-label">🇨🇭 EUR / CHF</div>
-          <div class="card-sublabel">FX:EURCHF · Franken je Euro · fällt = CHF stärker</div>
-        </div>
-        <div class="tv-widget-wrap">
+      <div class="card tvc">
+        <div class="tvc-top"><div class="lbl">🇨🇭 EUR / CHF</div><div class="sub">FX:EURCHF · fällt = CHF stärker als EUR</div></div>
+        <div class="tvc-body">
           <div class="tradingview-widget-container" style="height:100%;width:100%">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-            <div class="tradingview-widget-copyright"><a href="https://de.tradingview.com/" rel="noopener nofollow" target="_blank" style="color:var(--text-faint);font-size:0.6rem;">TradingView</a></div>
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 28px);width:100%"></div>
+            <div class="tv-foot"><a href="https://de.tradingview.com/" target="_blank" rel="noopener">TradingView</a></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
             {"symbols":[["EUR/CHF","FX:EURCHF|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideMarketStatus":true,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
             </script>
@@ -262,436 +256,412 @@
   </section>
 
   <!-- BAUZINSEN -->
-  <section class="dashboard-section" id="zinsen">
-    <div class="section-header"><span class="section-title">Bauzinsen</span><div class="section-line"></div></div>
+  <section class="sec" id="zinsen">
+    <div class="sec-hdr"><span class="sec-title">Bauzinsen</span><div class="line"></div></div>
     <div class="grid g1">
-      <div class="card cc-card">
-        <div class="card-top">
-          <div class="card-label">🏠 Bauzinsen · 10 Jahre Zinsbindung (% p.a.)</div>
-          <div class="card-sublabel">Effektivzins Neugeschäft · Wohnbaukredite DE · EZB MFI-Statistik</div>
+      <div class="card dc">
+        <div class="dc-top">
+          <div class="lbl">🏠 Bauzinsen · 10 Jahre Zinsbindung (% p.a.)</div>
+          <div class="sub">Effektivzins Neugeschäft · Wohnbaukredite DE · EZB MFI-Statistik</div>
         </div>
-        <div class="card-body">
-          <div class="metric-row">
-            <span class="metric-value" id="bauz-value">–</span>
-            <span class="metric-change" id="bauz-change"></span>
+        <div class="dc-body">
+          <div class="mrow"><span class="mval" id="bv">–</span><span class="mchg" id="bc"></span></div>
+          <div class="srow">
+            <div class="si"><div class="sl">Min (Zeitraum)</div><div class="sv" id="bmin">–</div></div>
+            <div class="si"><div class="sl">Max (Zeitraum)</div><div class="sv" id="bmax">–</div></div>
+            <div class="si"><div class="sl">Vergleich</div><div class="sv"><a class="ext" href="https://www.interhyp.de/bauzinsen/" target="_blank" rel="noopener">Interhyp →</a></div></div>
           </div>
-          <div class="stats-row">
-            <div class="stat-item"><div class="stat-lbl">Min (Zeitraum)</div><div class="stat-val" id="bauz-min">–</div></div>
-            <div class="stat-item"><div class="stat-lbl">Max (Zeitraum)</div><div class="stat-val" id="bauz-max">–</div></div>
-            <div class="stat-item"><div class="stat-lbl">Vergleich</div><div class="stat-val"><a class="ext-link" href="https://www.interhyp.de/bauzinsen/" target="_blank" rel="noopener">Interhyp →</a></div></div>
+          <div class="tbtns" id="bbtns">
+            <button class="tbtn" onclick="loadBauz(12,this)">1J</button>
+            <button class="tbtn" onclick="loadBauz(36,this)">3J</button>
+            <button class="tbtn on" onclick="loadBauz(60,this)">5J</button>
+            <button class="tbtn" onclick="loadBauz(120,this)">10J</button>
+            <button class="tbtn" onclick="loadBauz(999,this)">Max</button>
           </div>
-          <div class="time-btns" id="bauz-btns">
-            <button class="time-btn" onclick="loadBauz(12,this)">1J</button>
-            <button class="time-btn" onclick="loadBauz(36,this)">3J</button>
-            <button class="time-btn active" onclick="loadBauz(60,this)">5J</button>
-            <button class="time-btn" onclick="loadBauz(120,this)">10J</button>
-            <button class="time-btn" onclick="loadBauz(999,this)">Max</button>
-          </div>
-          <div class="chart-wrap" style="height:200px" id="bauz-wrap">
-            <canvas id="bauz-chart"></canvas>
-            <div class="chart-state" id="bauz-state"><div class="spinner"></div> Lade EZB-Daten…</div>
-          </div>
-          <div class="chart-note">
-            Quelle: <a href="https://data-api.ecb.europa.eu/" target="_blank" rel="noopener">EZB MFI-Statistik</a> ·
-            Fallback: <a href="https://www.bundesbank.de/" target="_blank" rel="noopener">Bundesbank</a>
-          </div>
+          <div class="cw" style="height:200px" id="bwrap"><canvas id="bchart"></canvas><div class="cst" id="bst"><div class="spin2"></div>Lade EZB-Daten…</div></div>
+          <div class="cnote">Quelle: <a href="https://data-api.ecb.europa.eu/" target="_blank">EZB MFI</a> · Fallback: <a href="https://www.bundesbank.de/" target="_blank">Bundesbank</a></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ENERGIE -->
-  <section class="dashboard-section" id="energie">
-    <div class="section-header"><span class="section-title">Energie Deutschland</span><div class="section-line"></div></div>
+  <section class="sec" id="energie">
+    <div class="sec-hdr"><span class="sec-title">Energie Deutschland</span><div class="line"></div></div>
     <div class="grid g1">
-      <div class="card cc-card">
-        <div class="card-top">
-          <div class="card-label">⚡ Erneuerbarer Anteil an der Stromerzeugung</div>
-          <div class="card-sublabel">Tagesschnitt · Wind + Solar + Wasser + Biomasse · Fraunhofer ISE</div>
+      <div class="card dc">
+        <div class="dc-top">
+          <div class="lbl">⚡ Erneuerbarer Anteil der Stromerzeugung</div>
+          <div class="sub">Tagesschnitt · Wind + Solar + Wasser + Biomasse · Fraunhofer ISE</div>
         </div>
-        <div class="card-body">
-          <div class="metric-row">
-            <span class="metric-value" id="ren-value">–</span>
-            <span class="metric-change" id="ren-change"></span>
+        <div class="dc-body">
+          <div class="mrow"><span class="mval" id="rv">–</span><span class="mchg" id="rc"></span></div>
+          <div class="srow">
+            <div class="si"><div class="sl">Ø Zeitraum</div><div class="sv" id="ravg">–</div></div>
+            <div class="si"><div class="sl">Max (Tag)</div><div class="sv" id="rmax">–</div></div>
+            <div class="si"><div class="sl">Min (Tag)</div><div class="sv" id="rmin">–</div></div>
           </div>
-          <div class="stats-row">
-            <div class="stat-item"><div class="stat-lbl">Ø Zeitraum</div><div class="stat-val" id="ren-avg">–</div></div>
-            <div class="stat-item"><div class="stat-lbl">Max (Tag)</div><div class="stat-val" id="ren-max">–</div></div>
-            <div class="stat-item"><div class="stat-lbl">Min (Tag)</div><div class="stat-val" id="ren-min">–</div></div>
+          <div class="tbtns" id="rbtns">
+            <button class="tbtn" onclick="loadRen(1,this)">1M</button>
+            <button class="tbtn" onclick="loadRen(3,this)">3M</button>
+            <button class="tbtn on" onclick="loadRen(6,this)">6M</button>
+            <button class="tbtn" onclick="loadRen(12,this)">1J</button>
           </div>
-          <div class="time-btns" id="ren-btns">
-            <button class="time-btn" onclick="loadRen(1,this)">1M</button>
-            <button class="time-btn" onclick="loadRen(3,this)">3M</button>
-            <button class="time-btn active" onclick="loadRen(6,this)">6M</button>
-            <button class="time-btn" onclick="loadRen(12,this)">1J</button>
-          </div>
-          <div class="chart-wrap" style="height:220px" id="ren-wrap">
-            <canvas id="ren-chart"></canvas>
-            <div class="chart-state" id="ren-state"><div class="spinner"></div> Lade Fraunhofer ISE…</div>
-          </div>
-          <div class="chart-note">Quelle: <a href="https://energy-charts.info" target="_blank" rel="noopener">Energy-Charts · Fraunhofer ISE</a></div>
+          <div class="cw" style="height:220px" id="rwrap"><canvas id="rchart"></canvas><div class="cst" id="rst"><div class="spin2"></div>Lade Energie-Daten…</div></div>
+          <div class="cnote">Quelle: <a href="https://energy-charts.info" target="_blank">Energy-Charts · Fraunhofer ISE</a></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ELBE -->
-  <section class="dashboard-section" id="elbe">
-    <div class="section-header"><span class="section-title">Elbe · Schnackenburg</span><div class="section-line"></div></div>
+  <section class="sec" id="elbe">
+    <div class="sec-hdr"><span class="sec-title">Elbe · Schnackenburg / Hitzacker</span><div class="line"></div></div>
     <div class="grid g2">
 
-      <div class="card cc-card">
-        <div class="card-top">
-          <div class="card-label">🌊 Pegelstand</div>
-          <div class="card-sublabel">Wasserstand in cm · WSV Pegelonline</div>
-        </div>
-        <div class="card-body">
-          <div class="metric-row">
-            <span class="metric-value" id="pegel-value">–</span>
-            <span class="metric-change" id="pegel-change"></span>
+      <div class="card dc">
+        <div class="dc-top"><div class="lbl">🌊 Pegelstand Schnackenburg</div><div class="sub">Wasserstand cm · WSV Pegelonline</div></div>
+        <div class="dc-body">
+          <div class="mrow"><span class="mval" id="pv">–</span><span class="mchg" id="pc"></span></div>
+          <div class="srow">
+            <div class="si"><div class="sl">Min</div><div class="sv" id="pmin">–</div></div>
+            <div class="si"><div class="sl">Max</div><div class="sv" id="pmax">–</div></div>
           </div>
-          <div class="stats-row">
-            <div class="stat-item"><div class="stat-lbl">Min (Zeitraum)</div><div class="stat-val" id="pegel-min">–</div></div>
-            <div class="stat-item"><div class="stat-lbl">Max (Zeitraum)</div><div class="stat-val" id="pegel-max">–</div></div>
+          <div class="tbtns" id="pbtns">
+            <button class="tbtn on" onclick="loadPegel(7,this)">7T</button>
+            <button class="tbtn" onclick="loadPegel(30,this)">1M</button>
+            <button class="tbtn" onclick="loadPegel(90,this)">3M</button>
+            <button class="tbtn" onclick="loadPegel(365,this)">1J</button>
           </div>
-          <div class="time-btns" id="pegel-btns">
-            <button class="time-btn active" onclick="loadPegel(7,this)">7T</button>
-            <button class="time-btn" onclick="loadPegel(30,this)">1M</button>
-            <button class="time-btn" onclick="loadPegel(90,this)">3M</button>
-            <button class="time-btn" onclick="loadPegel(365,this)">1J</button>
-          </div>
-          <div class="chart-wrap" style="height:200px" id="pegel-wrap">
-            <canvas id="pegel-chart"></canvas>
-            <div class="chart-state" id="pegel-state"><div class="spinner"></div> Lade Pegeldaten…</div>
-          </div>
-          <div class="chart-note">
-            Quelle: <a href="https://pegelonline.wsv.de" target="_blank" rel="noopener">WSV Pegelonline</a>
-          </div>
+          <div class="cw" style="height:200px" id="pwrap"><canvas id="pchart"></canvas><div class="cst" id="pst"><div class="spin2"></div>Lade Pegeldaten…</div></div>
+          <div class="cnote">Quelle: <a href="https://pegelonline.wsv.de" target="_blank">WSV Pegelonline</a></div>
         </div>
       </div>
 
-      <div class="card cc-card">
-        <div class="card-top">
-          <div class="card-label">🌡️ Wassertemperatur</div>
-          <div class="card-sublabel">Temperatur in °C · WSV Pegelonline</div>
-        </div>
-        <div class="card-body">
-          <div class="metric-row">
-            <span class="metric-value" id="temp-value">–</span>
-            <span class="metric-change" id="temp-change"></span>
+      <!-- Temperature via Open-Meteo (free, no key, proper CORS headers) -->
+      <div class="card dc">
+        <div class="dc-top"><div class="lbl">🌡️ Temperatur Hitzacker</div><div class="sub">Lufttemp. °C · Open-Meteo · Tagesdurchschnitt</div></div>
+        <div class="dc-body">
+          <div class="mrow"><span class="mval" id="tv">–</span><span class="mchg" id="tc"></span></div>
+          <div class="srow">
+            <div class="si"><div class="sl">Min Zeitraum</div><div class="sv" id="tmin">–</div></div>
+            <div class="si"><div class="sl">Max Zeitraum</div><div class="sv" id="tmax">–</div></div>
           </div>
-          <div class="stats-row">
-            <div class="stat-item"><div class="stat-lbl">Min (Zeitraum)</div><div class="stat-val" id="temp-min">–</div></div>
-            <div class="stat-item"><div class="stat-lbl">Max (Zeitraum)</div><div class="stat-val" id="temp-max">–</div></div>
+          <div class="tbtns" id="tbtns">
+            <button class="tbtn on" onclick="loadTemp(7,this)">7T</button>
+            <button class="tbtn" onclick="loadTemp(30,this)">1M</button>
+            <button class="tbtn" onclick="loadTemp(90,this)">3M</button>
+            <button class="tbtn" onclick="loadTemp(180,this)">6M</button>
           </div>
-          <div class="time-btns" id="temp-btns">
-            <button class="time-btn" onclick="loadTemp(7,this)">7T</button>
-            <button class="time-btn active" onclick="loadTemp(30,this)">1M</button>
-            <button class="time-btn" onclick="loadTemp(90,this)">3M</button>
-            <button class="time-btn" onclick="loadTemp(365,this)">1J</button>
-          </div>
-          <div class="chart-wrap" style="height:200px" id="temp-wrap">
-            <canvas id="temp-chart"></canvas>
-            <div class="chart-state" id="temp-state"><div class="spinner"></div> Lade Temperaturdaten…</div>
-          </div>
-          <div class="chart-note">
-            Quelle: <a href="https://pegelonline.wsv.de" target="_blank" rel="noopener">WSV Pegelonline</a> ·
-            Alternativ: <a href="https://undine.bafg.de" target="_blank" rel="noopener">undine.bafg.de</a>
-          </div>
+          <div class="cw" style="height:200px" id="twrap"><canvas id="tchart"></canvas><div class="cst" id="tst"><div class="spin2"></div>Lade Temperaturdaten…</div></div>
+          <div class="cnote">Quelle: <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> · Wassertemp: <a href="https://undine.bafg.de" target="_blank">undine.bafg.de</a></div>
         </div>
       </div>
 
     </div>
   </section>
 
-</div>
+</div><!-- /wrap -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>
 'use strict';
-const st  = { pegel: 7, temp: 30, ren: 6, bauz: 60 };
-const chs = {};
-const fmtN    = (n, d) => n.toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d });
-const fmtCm   = v => fmtN(v, 0) + ' cm';
-const fmtC    = v => fmtN(v, 1) + ' °C';
-const fmtPct  = v => fmtN(v, 1) + ' %';
-const fmtZins = v => fmtN(v, 2) + ' %';
 
-function showState(id, mode, msg = '') {
-  const state  = document.getElementById(id + '-state');
-  const canvas = document.getElementById(id + '-chart');
-  if (!state) return;
-  if (mode === 'done') {
-    state.style.display = 'none';
-    if (canvas) canvas.style.display = 'block';
-  } else {
-    state.style.display = 'flex';
-    if (canvas) canvas.style.display = 'none';
-    state.className = 'chart-state' + (mode === 'error' ? ' error' : '');
-    state.innerHTML = mode === 'loading'
-      ? `<div class="spinner"></div>${msg}`
-      : `⚠ ${msg}`;
+// ── state ──────────────────────────────────────────────────────────
+const ST  = { p:7, t:7, r:6, b:60 };
+const CHS = {};
+
+// ── formatters ─────────────────────────────────────────────────────
+const de   = (n,d) => n.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fCm  = v => de(v,0)+' cm';
+const fC   = v => de(v,1)+' °C';
+const fPct = v => de(v,1)+' %';
+const fZ   = v => de(v,2)+' %';
+const fEur = v => v.toLocaleString('de-DE',{minimumFractionDigits:0,maximumFractionDigits:0})+' €';
+
+// ── ui helpers ─────────────────────────────────────────────────────
+function show(id, mode, msg='') {
+  const st = document.getElementById(id+'st');
+  const cv = document.getElementById(id+'chart');
+  if (!st) return;
+  if (mode==='ok') { st.style.display='none'; if(cv) cv.style.display='block'; }
+  else {
+    st.style.display='flex';
+    if(cv) cv.style.display='none';
+    st.className = 'cst'+(mode==='err'?' err':'');
+    st.innerHTML = mode==='load' ? `<div class="spin2"></div>${msg}` : `⚠ ${msg}`;
   }
 }
-
-function activateBtn(groupId, btn) {
-  document.querySelectorAll(`#${groupId} .time-btn`).forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+function actBtn(gid, btn) {
+  document.querySelectorAll(`#${gid} .tbtn`).forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
 }
-function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
-function setClass(id, cls) { const el = document.getElementById(id); if (el) el.className = 'metric-change ' + cls; }
+function set(id,v)  { const e=document.getElementById(id); if(e) e.textContent=v; }
+function cls(id,c)  { const e=document.getElementById(id); if(e) e.className='mchg '+c; }
 
-function makeChart(id, labels, values, yFmt, yOpts = {}) {
-  if (chs[id]) { chs[id].destroy(); delete chs[id]; }
-  const canvas = document.getElementById(id + '-chart');
-  if (!canvas) return;
-  showState(id, 'done');
-  const ctx  = canvas.getContext('2d');
-  const h    = canvas.parentElement.offsetHeight || 200;
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, 'rgba(0,212,168,0.18)');
-  grad.addColorStop(1, 'rgba(0,212,168,0.00)');
-  const thick = values.length > 200 ? 1 : 1.5;
-  const dots  = values.length > 100 ? 0 : 2;
-  chs[id] = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets: [{ data: values, borderColor: '#00d4a8', backgroundColor: grad, borderWidth: thick, pointRadius: dots, pointHoverRadius: 4, pointHoverBackgroundColor: '#00d4a8', tension: 0.25, fill: true }] },
-    options: {
-      responsive: true, maintainAspectRatio: false, animation: { duration: 350 },
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#0f1623', borderColor: '#1e2a3a', borderWidth: 1,
-          titleColor: '#6b7f99', bodyColor: '#d4e0ed', padding: 10, cornerRadius: 6,
-          bodyFont: { family: "'IBM Plex Mono', monospace", size: 12 },
-          titleFont: { family: "'IBM Plex Sans', sans-serif", size: 11 },
-          callbacks: {
-            title: items => items[0] ? new Date(items[0].parsed.x).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'2-digit' }) : '',
-            label: item => '  ' + yFmt(item.parsed.y)
+// ── chart factory ──────────────────────────────────────────────────
+function mkChart(id, labels, vals, fmt, yOpts={}) {
+  if (CHS[id]) { CHS[id].destroy(); delete CHS[id]; }
+  const cv = document.getElementById(id+'chart');
+  if (!cv) return;
+  show(id,'ok');
+  const ctx = cv.getContext('2d');
+  const h   = cv.parentElement.offsetHeight||200;
+  const g   = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'rgba(0,212,168,.18)');
+  g.addColorStop(1,'rgba(0,212,168,0)');
+  CHS[id] = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[{
+      data:vals, borderColor:'#00d4a8', backgroundColor:g,
+      borderWidth: vals.length>200?1:1.5,
+      pointRadius: vals.length>100?0:2,
+      pointHoverRadius:4, tension:.25, fill:true
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:300},
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#0f1623', borderColor:'#1e2a3a', borderWidth:1,
+          titleColor:'#6b7f99', bodyColor:'#d4e0ed', padding:10, cornerRadius:6,
+          bodyFont:{family:"'IBM Plex Mono',monospace",size:12},
+          titleFont:{family:"'IBM Plex Sans',sans-serif",size:11},
+          callbacks:{
+            title: i => i[0] ? new Date(i[0].parsed.x).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '',
+            label: i => '  '+fmt(i.parsed.y)
           }
         }
       },
-      scales: {
-        x: { type: 'time', grid: { color: 'rgba(30,42,58,0.6)', drawBorder: false }, ticks: { color: '#3a4a5e', maxTicksLimit: 7, font: { size: 10 } } },
-        y: { position: 'right', grid: { color: 'rgba(30,42,58,0.6)', drawBorder: false }, ticks: { color: '#3a4a5e', font: { size: 10 }, callback: yFmt, maxTicksLimit: 5 }, ...yOpts }
+      scales:{
+        x:{type:'time', grid:{color:'rgba(30,42,58,.6)'}, ticks:{color:'#3a4a5e',maxTicksLimit:7,font:{size:10}}},
+        y:{position:'right', grid:{color:'rgba(30,42,58,.6)'}, ticks:{color:'#3a4a5e',font:{size:10},callback:fmt,maxTicksLimit:5}, ...yOpts}
       }
     }
   });
 }
 
-// PEGELSTAND
-async function loadPegel(days, btn) {
-  if (btn) activateBtn('pegel-btns', btn);
-  st.pegel = days;
-  showState('pegel', 'loading', 'Lade Pegeldaten WSV…');
+// ── GOLD €/KG ──────────────────────────────────────────────────────
+// Yahoo Finance: XAUEUR=X → EUR per troy oz (no API key, CORS ok from browsers)
+async function loadGold() {
   try {
-    const res = await fetch(`https://pegelonline.wsv.de/webservices/rest-api/v2/stations/SCHNACKENBURG/W/measurements.json?start=P${days}D`);
+    // Yahoo Finance v8 – current day quote
+    const url = 'https://query1.finance.yahoo.com/v8/finance/chart/XAUEUR%3DX?interval=1d&range=1d';
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) throw new Error(`Yahoo HTTP ${res.status}`);
+    const json = await res.json();
+    const meta = json.chart.result[0].meta;
+    const oz   = meta.regularMarketPrice;          // EUR per troy oz
+    if (!oz || oz <= 0) throw new Error('no price');
+    const kg   = oz * 32.1507;
+    document.getElementById('gkg').textContent = fEur(kg);
+    document.getElementById('goz').textContent = fEur(oz);
+  } catch (err) {
+    console.warn('Gold:', err.message);
+    // Silent fallback – TradingView widget still shows the oz price
+    document.getElementById('gkg').textContent = '→ TradingView';
+    document.getElementById('goz').textContent = '';
+  }
+}
+
+// ── PEGELSTAND ─────────────────────────────────────────────────────
+async function loadPegel(days, btn) {
+  if(btn) actBtn('pbtns',btn); ST.p=days;
+  show('p','load','Lade Pegeldaten…');
+  try {
+    const res = await fetch(
+      `https://pegelonline.wsv.de/webservices/rest-api/v2/stations/SCHNACKENBURG/W/measurements.json?start=P${days}D`,
+      { signal: AbortSignal.timeout(10000) }
+    );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const raw = await res.json();
-    if (!Array.isArray(raw) || !raw.length) throw new Error('Keine Daten für diesen Zeitraum');
-    const step = Math.max(1, Math.ceil(raw.length / 600));
-    const data = raw.filter((_, i) => i % step === 0);
-    const labels = data.map(d => new Date(d.timestamp));
-    const vals   = data.map(d => d.value);
-    const cur = vals.at(-1), prev = vals.at(-2) ?? cur, diff = cur - prev;
-    setText('pegel-value', fmtCm(cur));
-    setText('pegel-change', (diff >= 0 ? '▲ +' : '▼ ') + fmtN(Math.abs(diff), 0) + ' cm');
-    setClass('pegel-change', diff >= 0 ? 'pos' : 'neg');
-    setText('pegel-min', fmtCm(Math.min(...vals)));
-    setText('pegel-max', fmtCm(Math.max(...vals)));
-    makeChart('pegel', labels, vals, fmtCm);
-  } catch (e) {
-    showState('pegel', 'error', e.message);
-    console.error('Pegel:', e);
-  }
+    if (!Array.isArray(raw)||!raw.length) throw new Error('Keine Daten');
+    const step = Math.max(1,Math.ceil(raw.length/600));
+    const d    = raw.filter((_,i)=>i%step===0);
+    const lbl  = d.map(x=>new Date(x.timestamp));
+    const vals = d.map(x=>x.value);
+    const cur=vals.at(-1), prev=vals.at(-2)??cur, diff=cur-prev;
+    set('pv', fCm(cur));
+    set('pc', (diff>=0?'▲ +':'▼ ')+de(Math.abs(diff),0)+' cm');
+    cls('pc', diff>=0?'mchg pos':'mchg neg');
+    set('pmin', fCm(Math.min(...vals)));
+    set('pmax', fCm(Math.max(...vals)));
+    mkChart('p', lbl, vals, fCm);
+  } catch(e) { show('p','err',e.message); }
 }
 
-// WASSERTEMPERATUR
-const TEMP_STATIONS = ['HITZACKER', 'WITTENBERGE', 'CUMLOSEN', 'SCHNACKENBURG'];
+// ── TEMPERATUR HITZACKER (Open-Meteo) ──────────────────────────────
 async function loadTemp(days, btn) {
-  if (btn) activateBtn('temp-btns', btn);
-  st.temp = days;
-  showState('temp', 'loading', 'Lade Wassertemperatur…');
-  for (const station of TEMP_STATIONS) {
-    try {
-      const res = await fetch(
-        `https://pegelonline.wsv.de/webservices/rest-api/v2/stations/${station}/WT/measurements.json?start=P${days}D`
-      );
-      if (!res.ok) continue;
-      const raw = await res.json();
-      if (!Array.isArray(raw) || !raw.length) continue;
-      const step = Math.max(1, Math.ceil(raw.length / 600));
-      const data = raw.filter((_, i) => i % step === 0);
-      const labels = data.map(d => new Date(d.timestamp));
-      const vals   = data.map(d => d.value);
-      setText('temp-value', fmtC(vals.at(-1)));
-      setText('temp-change', `Station: ${station}`);
-      setText('temp-min', fmtC(Math.min(...vals)));
-      setText('temp-max', fmtC(Math.max(...vals)));
-      makeChart('temp', labels, vals, fmtC);
-      return;
-    } catch { /* try next */ }
-  }
-  showState('temp', 'error', 'Kein WT-Parameter an Elbe-Stationen verfügbar → undine.bafg.de');
+  if(btn) actBtn('tbtns',btn); ST.t=days;
+  show('t','load','Lade Temperaturdaten…');
+  try {
+    // Open-Meteo: free, no key, HTTPS, CORS-enabled
+    // Hitzacker: lat=53.143, lon=11.053
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=53.143&longitude=11.053`
+      + `&daily=temperature_2m_mean,temperature_2m_max,temperature_2m_min`
+      + `&past_days=${Math.min(days,92)}&forecast_days=0&timezone=Europe%2FBerlin`;
+    const res  = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const { time, temperature_2m_mean: means, temperature_2m_max: maxes, temperature_2m_min: mins } = json.daily;
+    const today = new Date().toISOString().slice(0,10);
+    const pairs = time.map((d,i)=>({d, m:means[i]})).filter(x=>x.m!==null && x.d<=today);
+    if (!pairs.length) throw new Error('Keine Daten');
+
+    // For long ranges, fetch again with higher past_days limit using ERA5 model
+    let finalPairs = pairs;
+    if (days > 92) {
+      const url2 = `https://archive-api.open-meteo.com/v1/archive?latitude=53.143&longitude=11.053`
+        + `&daily=temperature_2m_mean,temperature_2m_max,temperature_2m_min`
+        + `&start_date=${new Date(Date.now()-days*864e5).toISOString().slice(0,10)}`
+        + `&end_date=${today}&timezone=Europe%2FBerlin`;
+      try {
+        const r2 = await fetch(url2, { signal: AbortSignal.timeout(12000) });
+        if (r2.ok) {
+          const j2 = await r2.json();
+          finalPairs = j2.daily.time.map((d,i)=>({d, m:j2.daily.temperature_2m_mean[i]})).filter(x=>x.m!==null && x.d<=today);
+        }
+      } catch { /* use shorter range */ }
+    }
+
+    const lbl  = finalPairs.map(x=>new Date(x.d+'T12:00:00'));
+    const vals = finalPairs.map(x=>x.m);
+    const allMax = maxes.filter(v=>v!==null);
+    const allMin = mins.filter(v=>v!==null);
+    set('tv', fC(vals.at(-1)));
+    set('tc', 'Tagesdurchschnitt');
+    set('tmin', fC(Math.min(...allMin)));
+    set('tmax', fC(Math.max(...allMax)));
+    mkChart('t', lbl, vals, fC);
+  } catch(e) { show('t','err','Open-Meteo: '+e.message); }
 }
 
-// ERNEUERBARE
+// ── ERNEUERBARE (Energy-Charts API) ────────────────────────────────
 const RENEW = ['Wind onshore','Wind offshore','Photovoltaics','Hydro Water Reservoir','Run of River','Biomass','Geothermal'];
 
-async function fetchEnergy(url) {
-  // Try direct fetch first, then CORS proxy (needed for local file:// access)
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch {
-    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-    const res2 = await fetch(proxy);
-    if (!res2.ok) throw new Error(`Proxy HTTP ${res2.status}`);
-    return await res2.json();
-  }
-}
-
 async function loadRen(months, btn) {
-  if (btn) activateBtn('ren-btns', btn);
-  st.ren = months;
-  showState('ren', 'loading', 'Lade Fraunhofer ISE Daten…');
+  if(btn) actBtn('rbtns',btn); ST.r=months;
+  show('r','load','Lade Fraunhofer ISE Daten…');
   try {
-    const end = new Date(), start = new Date();
-    start.setMonth(start.getMonth() - months);
-    // Use date-only format (more compatible with the API)
-    const fmt = d => d.toISOString().slice(0, 10);
-    const url = `https://api.energy-charts.info/public_power?country=de&start=${fmt(start)}&end=${fmt(end)}`;
-    const data = await fetchEnergy(url);
-    if (!data.unix_seconds || !data.production_types) throw new Error('Unerwartetes API-Format');
-    const n = data.unix_seconds.length;
-    const totalA = new Float64Array(n), renewA = new Float64Array(n);
+    const end   = new Date();
+    const start = new Date(); start.setMonth(start.getMonth()-months);
+    const fmt   = d => d.toISOString().slice(0,10);
+    // Energy-Charts has proper CORS headers – no proxy needed on GitHub Pages
+    const url   = `https://api.energy-charts.info/public_power?country=de&start=${fmt(start)}&end=${fmt(end)}`;
+    const res   = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data  = await res.json();
+    if (!data.unix_seconds||!data.production_types) throw new Error('Unerwartetes Format');
+
+    const n=data.unix_seconds.length;
+    const tot=new Float64Array(n), ren=new Float64Array(n);
     for (const pt of data.production_types) {
-      const isR = RENEW.some(s => pt.name.includes(s));
-      pt.data.forEach((v, i) => { if (v !== null && v > 0) { totalA[i] += v; if (isR) renewA[i] += v; } });
+      const isR = RENEW.some(s=>pt.name.includes(s));
+      pt.data.forEach((v,i)=>{ if(v!==null&&v>0){ tot[i]+=v; if(isR) ren[i]+=v; } });
     }
-    const dayMap = new Map();
-    data.unix_seconds.forEach((ts, i) => {
-      if (totalA[i] === 0) return;
-      const day = new Date(ts * 1000).toISOString().slice(0, 10);
-      if (!dayMap.has(day)) dayMap.set(day, { t: 0, r: 0 });
-      const e = dayMap.get(day); e.t += totalA[i]; e.r += renewA[i];
+    const dm = new Map();
+    data.unix_seconds.forEach((ts,i)=>{
+      if(tot[i]===0) return;
+      const day=new Date(ts*1000).toISOString().slice(0,10);
+      if(!dm.has(day)) dm.set(day,{t:0,r:0});
+      const e=dm.get(day); e.t+=tot[i]; e.r+=ren[i];
     });
-    dayMap.delete(new Date().toISOString().slice(0, 10));
-    const days = [...dayMap.keys()].sort();
-    if (!days.length) throw new Error('Keine Tageswerte verfügbar');
-    const labels = days.map(d => new Date(d + 'T12:00:00'));
-    const pcts = days.map(d => { const { t, r } = dayMap.get(d); return t > 0 ? Math.round(r / t * 1000) / 10 : null; });
-    const validIdx = pcts.map((v, i) => v != null ? i : -1).filter(i => i >= 0);
-    const vPcts = validIdx.map(i => pcts[i]);
-    const vLabels = validIdx.map(i => labels[i]);
-    const cur = vPcts.at(-1);
-    const avg = Math.round(vPcts.reduce((a,b) => a+b, 0) / vPcts.length * 10) / 10;
-    setText('ren-value', fmtPct(cur));
-    setText('ren-change', 'Letzter vollst. Tag');
-    setText('ren-avg', fmtPct(avg));
-    setText('ren-max', fmtPct(Math.max(...vPcts)));
-    setText('ren-min', fmtPct(Math.min(...vPcts)));
-    makeChart('ren', vLabels, vPcts, fmtPct, { min: 0, max: 100 });
-  } catch (e) {
-    showState('ren', 'error', 'Fehler: ' + e.message);
-    console.error('Renewable:', e);
-  }
+    dm.delete(new Date().toISOString().slice(0,10));
+    const days=[...dm.keys()].sort();
+    if(!days.length) throw new Error('Keine Tageswerte');
+
+    const lbl  = days.map(d=>new Date(d+'T12:00:00'));
+    const pcts = days.map(d=>{ const {t,r}=dm.get(d); return t>0?Math.round(r/t*1000)/10:null; });
+    const vi   = pcts.map((v,i)=>v!=null?i:-1).filter(i=>i>=0);
+    const vp   = vi.map(i=>pcts[i]);
+    const vl   = vi.map(i=>lbl[i]);
+
+    set('rv', fPct(vp.at(-1)));
+    set('rc', 'Letzter vollst. Tag');
+    set('ravg', fPct(Math.round(vp.reduce((a,b)=>a+b,0)/vp.length*10)/10));
+    set('rmax', fPct(Math.max(...vp)));
+    set('rmin', fPct(Math.min(...vp)));
+    mkChart('r', vl, vp, fPct, {min:0,max:100});
+  } catch(e) { show('r','err','Energie-Charts: '+e.message); }
 }
 
-// BAUZINSEN
+// ── BAUZINSEN ──────────────────────────────────────────────────────
 async function loadBauz(months, btn) {
-  if (btn) activateBtn('bauz-btns', btn);
-  st.bauz = months;
-  showState('bauz', 'loading', 'Lade EZB MFI-Daten…');
-  const startPeriod = months >= 999 ? '2003-01' : (() => { const d = new Date(); d.setMonth(d.getMonth() - months); return d.toISOString().slice(0, 7); })();
-  try {
-    const res = await fetch(`https://data-api.ecb.europa.eu/service/data/MIR/M.DE.B.A2C.F.R.A.2250.EUR.N?format=jsondata&detail=dataonly&startPeriod=${startPeriod}`);
-    if (!res.ok) throw new Error(`EZB HTTP ${res.status}`);
-    const json = await res.json();
+  if(btn) actBtn('bbtns',btn); ST.b=months;
+  show('b','load','Lade EZB MFI-Daten…');
+  const sp = months>=999 ? '2003-01' : (()=>{ const d=new Date(); d.setMonth(d.getMonth()-months); return d.toISOString().slice(0,7); })();
+
+  async function parseSDMX(json) {
     const obs = json.dataSets[0].series[Object.keys(json.dataSets[0].series)[0]].observations;
     const tps = json.structure.dimensions.observation[0].values;
-    const labels = [], vals = [];
-    Object.entries(obs).forEach(([idx, v]) => { if (v[0] == null) return; const tp = tps[parseInt(idx)]; if (tp) { labels.push(new Date(tp.id + '-15')); vals.push(v[0]); } });
-    if (!vals.length) throw new Error('Keine Daten');
-    renderBauz(labels, vals);
-  } catch (e) {
-    console.warn('EZB fehlgeschlagen:', e.message, '– versuche Bundesbank…');
+    const L=[], V=[];
+    Object.entries(obs).forEach(([i,v])=>{ if(v[0]==null) return; const t=tps[+i]; if(t){L.push(new Date(t.id+'-15')); V.push(v[0]);} });
+    if(!V.length) throw new Error('Leer');
+    return {L,V};
+  }
+
+  try {
+    const r = await fetch(`https://data-api.ecb.europa.eu/service/data/MIR/M.DE.B.A2C.F.R.A.2250.EUR.N?format=jsondata&detail=dataonly&startPeriod=${sp}`, {signal:AbortSignal.timeout(12000)});
+    if(!r.ok) throw new Error(`EZB HTTP ${r.status}`);
+    const {L,V} = await parseSDMX(await r.json());
+    renderBauz(L,V);
+  } catch {
     try {
-      const res2 = await fetch(`https://api.bundesbank.de/service/data/BBK01/M.SUD157?format=jsondata&detail=dataonly&startPeriod=${startPeriod}`);
-      if (!res2.ok) throw new Error(`BBK HTTP ${res2.status}`);
-      const json2 = await res2.json();
-      const obs2 = json2.dataSets[0].series[Object.keys(json2.dataSets[0].series)[0]].observations;
-      const tps2 = json2.structure.dimensions.observation[0].values;
-      const labels2 = [], vals2 = [];
-      Object.entries(obs2).forEach(([idx, v]) => { if (v[0] == null) return; const tp = tps2[parseInt(idx)]; if (tp) { labels2.push(new Date(tp.id + '-15')); vals2.push(v[0]); } });
-      if (!vals2.length) throw new Error('Keine BBK-Daten');
-      renderBauz(labels2, vals2);
-    } catch (e2) {
-      showState('bauz', 'error', 'Datenabruf fehlgeschlagen → interhyp.de');
+      const r2 = await fetch(`https://api.bundesbank.de/service/data/BBK01/M.SUD157?format=jsondata&detail=dataonly&startPeriod=${sp}`, {signal:AbortSignal.timeout(12000)});
+      if(!r2.ok) throw new Error(`BBK HTTP ${r2.status}`);
+      const {L,V} = await parseSDMX(await r2.json());
+      renderBauz(L,V);
+    } catch {
+      show('b','err','Datenabruf fehlgeschlagen → interhyp.de');
     }
   }
 }
-
-function renderBauz(labels, vals) {
-  const cur = vals.at(-1), prev = vals.at(-2) ?? cur, diff = Math.round((cur - prev) * 100) / 100;
-  setText('bauz-value', fmtZins(cur));
-  setText('bauz-change', (diff >= 0 ? '▲ +' : '▼ ') + fmtN(Math.abs(diff), 2) + '% (Vormonat)');
-  setClass('bauz-change', diff >= 0 ? 'neg' : 'pos');
-  setText('bauz-min', fmtZins(Math.min(...vals)));
-  setText('bauz-max', fmtZins(Math.max(...vals)));
-  makeChart('bauz', labels, vals, fmtZins);
+function renderBauz(L,V) {
+  const cur=V.at(-1), prev=V.at(-2)??cur, d=Math.round((cur-prev)*100)/100;
+  set('bv', fZ(cur));
+  set('bc', (d>=0?'▲ +':'▼ ')+de(Math.abs(d),2)+'% (Vormonat)');
+  cls('bc', d>=0?'mchg neg':'mchg pos');
+  set('bmin', fZ(Math.min(...V)));
+  set('bmax', fZ(Math.max(...V)));
+  mkChart('b', L, V, fZ);
 }
 
-// GOLD €/KG (ECB Referenzkurs)
-async function loadGoldKg() {
-  try {
-    // ECB publishes XAU/EUR as "XAU per 1 EUR" → need to invert
-    const res = await fetch(
-      'https://data-api.ecb.europa.eu/service/data/EXR/D.XAU.EUR.SP00.A?format=jsondata&detail=dataonly&lastNObservations=1'
-    );
-    if (!res.ok) throw new Error();
-    const json = await res.json();
-    const obs = json.dataSets[0].series[Object.keys(json.dataSets[0].series)[0]].observations;
-    const raw = Object.values(obs)[0][0]; // XAU per 1 EUR
-    if (!raw) throw new Error();
-    const pricePerOz = raw < 1 ? 1 / raw : raw; // invert if XAU/EUR, keep if EUR/XAU
-    const pricePerKg = pricePerOz * 32.1507;
-    const fmtEur = v => v.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
-    document.getElementById('gold-kg').textContent = fmtEur(pricePerKg);
-    document.getElementById('gold-oz').textContent = fmtEur(pricePerOz);
-  } catch {
-    const el = document.getElementById('gold-kg');
-    if (el) el.textContent = '–';
-  }
+// ── NAV ────────────────────────────────────────────────────────────
+const SECS = ['rohstoffe','krypto','devisen','zinsen','energie','elbe'];
+function goTo(id) {
+  const el=document.getElementById(id);
+  if(el) window.scrollTo({top:el.getBoundingClientRect().top+scrollY-100,behavior:'smooth'});
 }
-
-// NAV
-const SECTIONS = ['rohstoffe','krypto','devisen','zinsen','energie','elbe'];
-function goTo(id) { const el = document.getElementById(id); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' }); }
-function updateNav() {
-  let cur = SECTIONS[0];
-  SECTIONS.forEach(id => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top < 130) cur = id; });
-  document.querySelectorAll('.nav-btn').forEach((btn, i) => btn.classList.toggle('active', SECTIONS[i] === cur));
+function upNav() {
+  let cur=SECS[0];
+  SECS.forEach(id=>{ const el=document.getElementById(id); if(el&&el.getBoundingClientRect().top<130) cur=id; });
+  document.querySelectorAll('.nbtn').forEach((b,i)=>b.classList.toggle('on',SECS[i]===cur));
 }
-window.addEventListener('scroll', updateNav, { passive: true });
+window.addEventListener('scroll',upNav,{passive:true});
 
-// REFRESH
+// ── REFRESH ─────────────────────────────────────────────────────────
+function stampTime() {
+  const el=document.getElementById('ts');
+  if(el) el.textContent=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr';
+}
 async function refreshAll() {
-  const btn = document.getElementById('refresh-btn');
-  btn.classList.add('spinning');
-  await Promise.allSettled([loadGoldKg(), loadPegel(st.pegel), loadTemp(st.temp), loadRen(st.ren), loadBauz(st.bauz)]);
-  btn.classList.remove('spinning');
-  updateTimestamp();
+  const b=document.getElementById('rbtn'); b.classList.add('spin');
+  await Promise.allSettled([loadGold(), loadPegel(ST.p), loadTemp(ST.t), loadRen(ST.r), loadBauz(ST.b)]);
+  b.classList.remove('spin');
+  stampTime();
 }
-function updateTimestamp() {
-  const el = document.getElementById('last-update');
-  if (el) el.textContent = new Date().toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) + ' Uhr';
-}
-setInterval(refreshAll, 5 * 60 * 1000);
-document.addEventListener('DOMContentLoaded', () => { updateTimestamp(); loadGoldKg(); loadPegel(7); loadTemp(30); loadRen(6); loadBauz(60); });
+setInterval(refreshAll, 5*60*1000);
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  stampTime();
+  loadGold();
+  loadPegel(7);
+  loadTemp(7);
+  loadRen(6);
+  loadBauz(60);
+});
 </script>
 </body>
 </html>
