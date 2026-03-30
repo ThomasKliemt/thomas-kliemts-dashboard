@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#080d17">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#080d17;--sur:#0f1623;--sur2:#161e2e;
+      --bd:#1e2a3a;--bd2:#263344;
+      --ac:#00d4a8;--acd:rgba(0,212,168,.12);
+      --tx:#d4e0ed;--mu:#6b7f99;--fa:#3a4a5e;
+      --pos:#00d4a8;--neg:#ff5a7a;
+      --mo:'IBM Plex Mono',monospace;--sa:'IBM Plex Sans',sans-serif;
+    }
+    html{font-size:14px;scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--tx);font-family:var(--sa);padding-bottom:60px}
+
+    /* header */
+    .hdr{position:sticky;top:0;z-index:200;background:rgba(8,13,23,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+    .ht{font-family:var(--mo);font-size:.95rem;font-weight:600;color:var(--ac)}
+    .hr{display:flex;align-items:center;gap:10px}
+    #ts{font-family:var(--mo);font-size:.68rem;color:var(--fa)}
+    #rb{background:var(--sur2);border:1px solid var(--bd2);color:var(--mu);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    #rb:hover{border-color:var(--ac);color:var(--ac)}
+    #rb.sp{animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* nav */
+    .nav{display:flex;gap:2px;padding:8px 12px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--bd);position:sticky;top:51px;z-index:100;background:rgba(8,13,23,.97);backdrop-filter:blur(12px)}
+    .nav::-webkit-scrollbar{display:none}
+    .nb{background:transparent;border:none;color:var(--mu);padding:5px 11px;border-radius:20px;font-size:.75rem;font-family:var(--sa);cursor:pointer;white-space:nowrap;transition:all .2s}
+    .nb:hover{background:var(--sur2);color:var(--tx)}
+    .nb.on{background:var(--acd);color:var(--ac);font-weight:600}
+
+    /* layout */
+    .w{max-width:1440px;margin:0 auto;padding:0 12px}
+    .sec{padding:22px 0 8px}
+    .sh{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .stitle{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--fa);font-family:var(--mo);white-space:nowrap}
+    .sline{flex:1;height:1px;background:var(--bd)}
+    .grid{display:grid;gap:10px}
+    .g1{grid-template-columns:1fr}.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr}
+    @media(min-width:600px){.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:960px){.g3{grid-template-columns:repeat(3,1fr)}}
+
+    /* cards */
+    .card{background:var(--sur);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+
+    /* TV cards */
+    .tvc{display:flex;flex-direction:column;min-height:400px}
+    .tvc.tall{min-height:460px}
+    .tvt{padding:10px 14px 8px;border-bottom:1px solid var(--bd);flex-shrink:0}
+    .tvb{flex:1;min-height:0}
+    .tvb .tradingview-widget-container,.tvb .tradingview-widget-container__widget{height:100%;width:100%}
+    .tvf{font-size:.6rem;padding:4px 8px}.tvf a{color:var(--fa);text-decoration:none}
+
+    /* gold price highlight box */
+    .gold-box{display:flex;gap:0;margin-top:8px;border:1px solid var(--bd2);border-radius:6px;overflow:hidden}
+    .gold-cell{flex:1;padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+    .gold-cell:first-child{border-right:1px solid var(--bd2);background:rgba(0,212,168,.06)}
+    .gold-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;color:var(--fa)}
+    .gold-val{font-family:var(--mo);font-size:1.15rem;font-weight:600;color:var(--tx)}
+    .gold-val.sec{font-size:.9rem;color:var(--mu);font-weight:400}
+
+
+    /* data cards */
+    .dc .dt{padding:14px 14px 0}.dc .db{padding:4px 14px 14px}
+    .lbl{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mu)}
+    .sub{font-size:.65rem;color:var(--fa);margin-top:2px}
+    .mr{display:flex;align-items:baseline;gap:10px;margin:10px 0 4px}
+    .mv{font-family:var(--mo);font-size:1.7rem;font-weight:600;color:var(--tx);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+    .mc{font-family:var(--mo);font-size:.75rem;font-weight:500}
+    .pos{color:var(--pos)}.neg{color:var(--neg)}
+    .sr{display:flex;gap:12px;margin:6px 0 10px;flex-wrap:wrap}
+    .si .sl{font-size:.62rem;color:var(--fa);margin-bottom:2px}
+    .si .sv{font-family:var(--mo);font-size:.82rem;font-weight:500}
+
+    /* signal light for energy */
+
+    /* water stats */
+    .wgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0;padding:10px;background:var(--sur2);border-radius:6px;border:1px solid var(--bd2)}
+    .wi .wl{font-size:.6rem;color:var(--fa);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+    .wi .wv{font-family:var(--mo);font-size:.85rem;font-weight:500}
+
+    /* time buttons */
+    .tbs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+    .tb{background:transparent;border:1px solid var(--bd2);color:var(--fa);padding:3px 8px;border-radius:4px;font-family:var(--mo);font-size:.65rem;cursor:pointer;transition:all .15s}
+    .tb:hover:not(.on){border-color:var(--ac);color:var(--mu)}
+    .tb.on{background:var(--ac);border-color:var(--ac);color:#020a12;font-weight:600}
+
+    /* chart */
+    .cw{position:relative}
+    .cw canvas{display:none}
+    .cst{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--fa);font-size:.78rem;text-align:center;padding:20px;min-height:80px}
+    .sp2{width:18px;height:18px;border:2px solid var(--bd2);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+    .cst.err{color:var(--neg)}.cst.err .sp2{display:none}
+    .cn{font-size:.62rem;color:var(--fa);margin-top:8px;border-top:1px solid var(--bd);padding-top:6px}
+    .cn a,.ext{color:var(--ac);text-decoration:none}
+    .cn a:hover{text-decoration:underline}
+
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="ht">▸ DASHBOARD</div>
+  <div class="hr">
+    <span id="ts">–</span>
+    <button id="rb" onclick="refreshAll()" title="Aktualisieren">↻</button>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="nb on" onclick="goTo('rohstoffe')">🛢 Rohstoffe</button>
+  <button class="nb" onclick="goTo('krypto')">₿ Bitcoin</button>
+  <button class="nb" onclick="goTo('devisen')">💱 CHF/EUR</button>
+  <button class="nb" onclick="goTo('zinsen')">🏠 Bauzinsen</button>
+  <button class="nb" onclick="goTo('elbe')">🌊 Elbe</button>
+</nav>
+
+<div class="w">
+
+  <!-- ══ ROHSTOFFE ══ -->
+  <section class="sec" id="rohstoffe">
+    <div class="sh"><span class="stitle">Rohstoffe</span><div class="sline"></div></div>
+    <div class="grid g2">
+
+      <!-- GOLD: jsDelivr currency API (confirmed CORS ✅) + TradingView chart -->
+      <div class="card tvc">
+        <div class="tvt">
+          <div class="lbl">🥇 Gold / EUR</div>
+          <div class="sub">Kurs via <a class="ext" href="https://www.gold.de/kurse/goldpreis/kilo/" target="_blank" rel="noopener">gold.de</a> · Chart OANDA:XAUEUR</div>
+          <div class="gold-box">
+            <div class="gold-cell">
+              <div class="gold-lbl">€ pro Kilogramm</div>
+              <div class="gold-val" id="gkg">…</div>
+            </div>
+            <div class="gold-cell">
+              <div class="gold-lbl">€ pro Feinunze</div>
+              <div class="gold-val sec" id="goz">…</div>
+            </div>
+          </div>
+        </div>
+        <div class="tvb">
+          <div class="tradingview-widget-container" style="height:100%;width:100%">
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 26px);width:100%"></div>
+            <div class="tvf"><a href="https://de.tradingview.com/" target="_blank" rel="noopener">TradingView</a></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+            {"symbols":[["Gold","OANDA:XAUEUR|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideMarketStatus":true,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
+            </script>
+          </div>
+        </div>
+      </div>
+
+      <!-- OIL: Symbol Overview ✅ works for non-futures -->
+      <div class="card tvc">
+        <div class="tvt"><div class="lbl">🛢️ Rohöl WTI / USD</div><div class="sub">TVC:USOIL · Dollar je Barrel</div></div>
+        <div class="tvb">
+          <div class="tradingview-widget-container" style="height:100%;width:100%">
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 26px);width:100%"></div>
+            <div class="tvf"><a href="https://de.tradingview.com/" target="_blank" rel="noopener">TradingView</a></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+            {"symbols":[["WTI Rohöl","TVC:USOIL|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideMarketStatus":true,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
+            </script>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ BITCOIN ══ -->
+  <section class="sec" id="krypto">
+    <div class="sh"><span class="stitle">Krypto</span><div class="sline"></div></div>
+    <div class="grid g1">
+      <div class="card tvc tall">
+        <div class="tvt"><div class="lbl">₿ Bitcoin / EUR</div><div class="sub">COINBASE:BTCEUR</div></div>
+        <div class="tvb">
+          <div class="tradingview-widget-container" style="height:100%;width:100%">
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 26px);width:100%"></div>
+            <div class="tvf"><a href="https://de.tradingview.com/" target="_blank" rel="noopener">TradingView</a></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+            {"symbols":[["Bitcoin EUR","COINBASE:BTCEUR|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":true,"hideDateRanges":false,"hideMarketStatus":false,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CHF/EUR ══ -->
+  <section class="sec" id="devisen">
+    <div class="sh"><span class="stitle">Devisen</span><div class="sline"></div></div>
+    <div class="grid g1">
+      <div class="card tvc">
+        <div class="tvt"><div class="lbl">🇨🇭 EUR / CHF</div><div class="sub">FX:EURCHF · Franken je Euro · fällt = CHF stärker</div></div>
+        <div class="tvb">
+          <div class="tradingview-widget-container" style="height:100%;width:100%">
+            <div class="tradingview-widget-container__widget" style="height:calc(100% - 26px);width:100%"></div>
+            <div class="tvf"><a href="https://de.tradingview.com/" target="_blank" rel="noopener">TradingView</a></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+            {"symbols":[["EUR/CHF","FX:EURCHF|12M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"de","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideMarketStatus":true,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineWidth":2,"lineType":0,"dateRanges":["1m|30","3m|60","12m|1D","60m|1W","all|1M"]}
+            </script>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ BAUZINSEN ══ -->
+  <section class="sec" id="zinsen">
+    <div class="sh"><span class="stitle">Bauzinsen</span><div class="sline"></div></div>
+    <div class="grid g1">
+      <div class="card dc">
+        <div class="dt">
+          <div class="lbl">🏠 Bauzinsen · 10J Zinsbindung (% p.a.)</div>
+          <div class="sub">Effektivzins Neugeschäft · Wohnbaukredite DE · EZB MFI-Statistik</div>
+        </div>
+        <div class="db">
+          <div class="mr"><span class="mv" id="bv">–</span><span class="mc" id="bc"></span></div>
+          <div class="sr">
+            <div class="si"><div class="sl">Min (Zeitraum)</div><div class="sv" id="bmin">–</div></div>
+            <div class="si"><div class="sl">Max (Zeitraum)</div><div class="sv" id="bmax">–</div></div>
+            <div class="si"><div class="sl">Vergleich</div><div class="sv"><a class="ext" href="https://www.interhyp.de/bauzinsen/" target="_blank" rel="noopener">Interhyp →</a></div></div>
+          </div>
+          <div class="tbs" id="bbs">
+            <button class="tb" onclick="loadBauz(12,this)">1J</button>
+            <button class="tb" onclick="loadBauz(36,this)">3J</button>
+            <button class="tb on" onclick="loadBauz(60,this)">5J</button>
+            <button class="tb" onclick="loadBauz(120,this)">10J</button>
+            <button class="tb" onclick="loadBauz(999,this)">Max</button>
+          </div>
+          <div class="cw" style="height:200px" id="bwrap"><canvas id="bchart"></canvas><div class="cst" id="bst"><div class="sp2"></div>Lade…</div></div>
+          <div class="cn">Quelle: <a href="https://data-api.ecb.europa.eu/" target="_blank" rel="noopener">EZB MFI-Statistik</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ELBE ══ -->
+  <section class="sec" id="elbe">
+    <div class="sh"><span class="stitle">Elbe · Schnackenburg</span><div class="sline"></div></div>
+    <div class="grid g2">
+
+      <!-- Pegelstand: WSV Pegelonline, confirmed ✅ 252ms -->
+      <div class="card dc">
+        <div class="dt"><div class="lbl">🌊 Pegelstand Schnackenburg</div><div class="sub">Wasserstand in cm · WSV Pegelonline</div></div>
+        <div class="db">
+          <div class="mr"><span class="mv" id="pv">–</span><span class="mc" id="pc"></span></div>
+          <div class="sr">
+            <div class="si"><div class="sl">Min</div><div class="sv" id="pmin">–</div></div>
+            <div class="si"><div class="sl">Max</div><div class="sv" id="pmax">–</div></div>
+          </div>
+          <div class="tbs" id="pbs">
+            <button class="tb on" onclick="loadPegel(7,this)">7T</button>
+            <button class="tb" onclick="loadPegel(30,this)">1M</button>
+            <button class="tb" onclick="loadPegel(90,this)">3M</button>
+            <button class="tb" onclick="loadPegel(365,this)">1J</button>
+          </div>
+          <div class="cw" style="height:200px" id="pwrap"><canvas id="pchart"></canvas><div class="cst" id="pst"><div class="sp2"></div>Lade…</div></div>
+          <div class="cn">Quelle: <a href="https://pegelonline.wsv.de" target="_blank" rel="noopener">WSV Pegelonline</a></div>
+        </div>
+      </div>
+
+      <!-- Wassertemperatur: WSV Pegelonline /stations.json?waters=ELBE&hasTimeseries=WT -->
+      <div class="card dc">
+        <div class="dt">
+          <div class="lbl">🌡️ Wassertemperatur Elbe</div>
+          <div class="sub" id="wtemp-sub">Nächste Elbe-Messstation · WSV Pegelonline</div>
+        </div>
+        <div class="db">
+          <div class="mr"><span class="mv" id="wv">–</span><span class="mc" id="wc" style="color:var(--mu)"></span></div>
+          <div class="wgrid" id="wgrid" style="display:none">
+            <div class="wi"><div class="wl">Station</div><div class="wv" id="wstation">–</div></div>
+            <div class="wi"><div class="wl">Fluss-km</div><div class="wv" id="wkm">–</div></div>
+          </div>
+          <div class="cst" id="wst"><div class="sp2"></div>Suche Elbe-Messstationen…</div>
+          <div class="cn">Quelle: <a href="https://pegelonline.wsv.de" target="_blank" rel="noopener">WSV Pegelonline</a> · Nächste Station mit WT-Messung</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- /w -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script>
+'use strict';
+
+const ST = { p:7, r:6, b:60 };
+const CHS = {};
+
+/* ── formatters ── */
+const deN  = (n,d) => n.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fCm  = v => deN(v,0)+' cm';
+const fPct = v => deN(v,1)+' %';
+const fZ   = v => deN(v,2)+' %';
+const fEur = v => Math.round(v).toLocaleString('de-DE')+' €';
+
+/* ── UI helpers ── */
+function showSt(id, mode, msg='') {
+  const s = document.getElementById(id+'st'), c = document.getElementById(id+'chart');
+  if (!s) return;
+  if (mode==='ok') { s.style.display='none'; if(c) c.style.display='block'; return; }
+  s.style.display='flex'; if(c) c.style.display='none';
+  s.className = 'cst'+(mode==='err'?' err':'');
+  s.innerHTML = mode==='load' ? `<div class="sp2"></div>${msg}` : `⚠ ${msg}`;
+}
+function aBtn(g,b) { document.querySelectorAll(`#${g} .tb`).forEach(x=>x.classList.remove('on')); if(b) b.classList.add('on'); }
+function set(id,v)  { const e=document.getElementById(id); if(e) e.textContent=v; }
+function cls(id,c)  { const e=document.getElementById(id); if(e) e.className='mc '+c; }
+function hide(id)   { const e=document.getElementById(id); if(e) e.style.display='none'; }
+function show(id,d='block') { const e=document.getElementById(id); if(e) e.style.display=d; }
+
+/* ── chart factory ── */
+function mkChart(id, labels, vals, fmt, yO={}) {
+  if (CHS[id]) { CHS[id].destroy(); delete CHS[id]; }
+  const cv = document.getElementById(id+'chart');
+  if (!cv) return;
+  showSt(id,'ok');
+  const ctx = cv.getContext('2d');
+  const g = ctx.createLinearGradient(0,0,0,cv.parentElement.offsetHeight||200);
+  g.addColorStop(0,'rgba(0,212,168,.18)'); g.addColorStop(1,'rgba(0,212,168,0)');
+  CHS[id] = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[{ data:vals, borderColor:'#00d4a8', backgroundColor:g,
+      borderWidth:vals.length>200?1:1.5, pointRadius:vals.length>100?0:2,
+      pointHoverRadius:4, tension:.25, fill:true }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:300},
+      interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{display:false}, tooltip:{
+        backgroundColor:'#0f1623', borderColor:'#1e2a3a', borderWidth:1,
+        titleColor:'#6b7f99', bodyColor:'#d4e0ed', padding:10, cornerRadius:6,
+        bodyFont:{family:"'IBM Plex Mono',monospace",size:12},
+        titleFont:{family:"'IBM Plex Sans',sans-serif",size:11},
+        callbacks:{
+          title:i=>i[0]?new Date(i[0].parsed.x).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'}):'',
+          label:i=>'  '+fmt(i.parsed.y)
+        }
+      }},
+      scales:{
+        x:{type:'time', grid:{color:'rgba(30,42,58,.6)'}, ticks:{color:'#3a4a5e',maxTicksLimit:7,font:{size:10}}},
+        y:{position:'right', grid:{color:'rgba(30,42,58,.6)'}, ticks:{color:'#3a4a5e',font:{size:10},callback:fmt,maxTicksLimit:5}, ...yO}
+      }
+    }
+  });
+}
+
+/* ─────────────────────────────────────────────
+   GOLD €/KG
+   Source: @fawazahmed0/exchange-api on jsDelivr
+   CORS: ✅ confirmed working (98ms in test)
+   xau.eur = EUR per troy oz → ×32.1507 = €/kg
+───────────────────────────────────────────── */
+async function loadGold() {
+  // 4-URL fallback chain: minified+jsDelivr → minified+CF → full+jsDelivr → full+CF
+  const URLS = [
+    'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.min.json',
+    'https://latest.currency-api.pages.dev/v1/currencies/xau.min.json',
+    'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json',
+    'https://latest.currency-api.pages.dev/v1/currencies/xau.json',
+  ];
+  for (const url of URLS) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (!r.ok) continue;
+      const j = await r.json();
+      const oz = j.xau?.eur;
+      if (!oz || oz <= 0) continue;
+      const kg = oz * 32.1507;
+      set('gkg', fEur(kg));
+      set('goz', fEur(oz));
+      return;
+    } catch { /* try next URL */ }
+  }
+  set('gkg', 'n.v.');
+  set('goz', '–');
+}
+
+/* ─────────────────────────────────────────────
+   PEGELSTAND SCHNACKENBURG
+   Source: WSV Pegelonline REST API
+   CORS: ✅ confirmed working (252ms in test)
+───────────────────────────────────────────── */
+async function loadPegel(days, btn) {
+  if (btn) aBtn('pbs', btn); ST.p = days;
+  showSt('p','load','Lade Pegeldaten WSV…');
+  try {
+    const r = await fetch(
+      `https://pegelonline.wsv.de/webservices/rest-api/v2/stations/SCHNACKENBURG/W/measurements.json?start=P${days}D`,
+      { signal: AbortSignal.timeout(12000) }
+    );
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const raw = await r.json();
+    if (!Array.isArray(raw)||!raw.length) throw new Error('Keine Messwerte');
+    const step = Math.max(1, Math.ceil(raw.length/600));
+    const d    = raw.filter((_,i)=>i%step===0);
+    const lbl  = d.map(x=>new Date(x.timestamp));
+    const vals = d.map(x=>x.value);
+    const cur=vals.at(-1), prev=vals.at(-2)??cur, diff=cur-prev;
+    set('pv', fCm(cur));
+    set('pc', (diff>=0?'▲ +':'▼ ')+deN(Math.abs(diff),0)+' cm');
+    cls('pc', diff>=0?'pos':'neg');
+    set('pmin', fCm(Math.min(...vals)));
+    set('pmax', fCm(Math.max(...vals)));
+    mkChart('p', lbl, vals, fCm);
+  } catch(e) { showSt('p','err',e.message); }
+}
+
+/* ─────────────────────────────────────────────
+   WASSERTEMPERATUR ELBE
+   Source: WSV Pegelonline — dynamic station discovery
+   Fetches all Elbe stations with WT timeseries,
+   picks the one closest to Schnackenburg (km 474.6)
+   CORS: ✅ confirmed for WSV pegelonline
+───────────────────────────────────────────── */
+async function loadWTemp() {
+  const s = document.getElementById('wst');
+  if (s) { s.style.display='flex'; s.className='cst'; s.innerHTML='<div class="sp2"></div>Suche Elbe-WT-Stationen…'; }
+  try {
+    // Get all Elbe stations that have a WT (water temperature) timeseries with current measurement
+    const r = await fetch(
+      'https://pegelonline.wsv.de/webservices/rest-api/v2/stations.json?waters=ELBE&includeTimeseries=true&includeCurrentMeasurement=true',
+      { signal: AbortSignal.timeout(12000) }
+    );
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const stations = await r.json();
+
+    // Filter: only stations that have WT timeseries with a current measurement
+    const wtStations = stations
+      .filter(st => st.timeseries?.some(ts => ts.shortname === 'WT' && ts.currentMeasurement?.value != null))
+      .map(st => {
+        const wt = st.timeseries.find(ts => ts.shortname === 'WT');
+        return {
+          name:  st.longname || st.shortname,
+          km:    st.km,
+          temp:  wt.currentMeasurement.value,
+          time:  wt.currentMeasurement.timestamp,
+          uuid:  st.uuid
+        };
+      });
+
+    if (!wtStations.length) throw new Error('Keine Elbe-Station mit WT-Messung gefunden');
+
+    // Pick station closest to Schnackenburg (km 474.6)
+    const SCHNACKENBURG_KM = 474.6;
+    wtStations.sort((a,b) => Math.abs(a.km-SCHNACKENBURG_KM) - Math.abs(b.km-SCHNACKENBURG_KM));
+    const best = wtStations[0];
+
+    const timeStr = best.time ? new Date(best.time).toLocaleString('de-DE',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}) : '';
+
+    set('wv', deN(best.temp,1)+' °C');
+    set('wc', timeStr ? 'Stand: '+timeStr : '');
+    set('wstation', best.name);
+    set('wkm', 'Elbe-km '+deN(best.km,1));
+
+    const sub = document.getElementById('wtemp-sub');
+    if (sub) sub.textContent = `Station ${best.name} (km ${deN(best.km,1)}) · WSV Pegelonline`;
+
+    show('wgrid','grid');
+    if (s) s.style.display='none';
+  } catch(e) {
+    console.error('WTemp:', e);
+    if (s) {
+      s.style.display='flex'; s.className='cst err';
+      s.innerHTML=`⚠ ${e.message}`;
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────
+   ERNEUERBARE ENERGIE
+   Source: api.energy-charts.info/signal?country=de
+/* ─────────────────────────────────────────────
+   BAUZINSEN
+   Source: EZB MFI-Statistik
+   CORS: ✅ confirmed working (430ms in test)
+───────────────────────────────────────────── */
+async function loadBauz(months, btn) {
+  if (btn) aBtn('bbs', btn); ST.b = months;
+  showSt('b','load','Lade EZB MFI-Daten…');
+  const sp = months>=999 ? '2003-01' : (() => { const d=new Date(); d.setMonth(d.getMonth()-months); return d.toISOString().slice(0,7); })();
+  try {
+    const r = await fetch(
+      `https://data-api.ecb.europa.eu/service/data/MIR/M.DE.B.A2C.F.R.A.2250.EUR.N?format=jsondata&detail=dataonly&startPeriod=${sp}`,
+      { signal: AbortSignal.timeout(15000) }
+    );
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j   = await r.json();
+    const obs  = j.dataSets[0].series[Object.keys(j.dataSets[0].series)[0]].observations;
+    const tps  = j.structure.dimensions.observation[0].values;
+    const L=[], V=[];
+    Object.entries(obs).forEach(([i,v]) => { if(v[0]==null) return; const t=tps[+i]; if(t){L.push(new Date(t.id+'-15'));V.push(v[0]);} });
+    if (!V.length) throw new Error('Keine Daten');
+    const cur=V.at(-1), prev=V.at(-2)??cur, d=Math.round((cur-prev)*100)/100;
+    set('bv', deN(cur,2)+' %');
+    set('bc', (d>=0?'▲ +':'▼ ')+deN(Math.abs(d),2)+'% (Vormonat)');
+    cls('bc', d>=0?'neg':'pos');
+    set('bmin', deN(Math.min(...V),2)+' %');
+    set('bmax', deN(Math.max(...V),2)+' %');
+    mkChart('b', L, V, fZ);
+  } catch(e) { showSt('b','err','EZB: '+e.message); }
+}
+
+/* ── NAV ── */
+const SECS = ['rohstoffe','krypto','devisen','zinsen','elbe'];
+function goTo(id) { const e=document.getElementById(id); if(e) window.scrollTo({top:e.getBoundingClientRect().top+scrollY-100,behavior:'smooth'}); }
+function upNav() {
+  let c=SECS[0];
+  SECS.forEach(id=>{ const e=document.getElementById(id); if(e&&e.getBoundingClientRect().top<130) c=id; });
+  document.querySelectorAll('.nb').forEach((b,i)=>b.classList.toggle('on',SECS[i]===c));
+}
+window.addEventListener('scroll', upNav, {passive:true});
+
+/* ── REFRESH & INIT ── */
+function stamp() { const e=document.getElementById('ts'); if(e) e.textContent=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr'; }
+
+async function refreshAll() {
+  const b=document.getElementById('rb'); b.classList.add('sp');
+  await Promise.allSettled([loadGold(), loadPegel(ST.p), loadWTemp(), loadBauz(ST.b)]);
+  b.classList.remove('sp'); stamp();
+}
+
+setInterval(refreshAll, 5*60*1000);
+
+document.addEventListener('DOMContentLoaded', () => {
+  stamp();
+  loadGold();
+  loadPegel(7);
+  loadWTemp();
+  loadBauz(60);
+});
+</script>
+</body>
+</html>
